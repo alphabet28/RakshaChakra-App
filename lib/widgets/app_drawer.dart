@@ -22,7 +22,9 @@ class AppDrawer extends StatelessWidget {
               title: 'Pay',
               subtitle: 'UPI, Transfer, Cards, Recharge...',
               children: [
-                _buildSubDrawerItem(text: 'UPI Payment', onTap: () {}),
+                _buildSubDrawerItem(text: 'UPI Payment', onTap: () {
+                  Navigator.pushNamed(context, '/upi_payment');
+                }),
                 _buildSubDrawerItem(text: 'Money Transfer', onTap: () {}),
                 _buildSubDrawerItem(text: 'Cards', onTap: () {}),
                 _buildSubDrawerItem(text: 'Recharge', onTap: () {}),
@@ -109,7 +111,7 @@ class AppDrawer extends StatelessWidget {
           ),
           SizedBox(height: 10),
           Text(
-            'Deepam Goyal',
+            'Atharv Bhavsar',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -117,7 +119,7 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           Text(
-            'Last Login: Jun 22, 10:40 AM',
+            'Last Login: Jul 03, 01:18 AM',
             style: TextStyle(
               color: Colors.white70,
               fontSize: 12,

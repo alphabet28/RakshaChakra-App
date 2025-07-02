@@ -9,6 +9,7 @@ import 'widgets/gesture_capture_wrapper.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'widgets/screen_flow_observer.dart';
 import 'screens/debug_data_screen.dart';
+import 'package:raksha/screens/upi_payment_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
         '/accounts': (context) => const GestureCaptureWrapper(child: AccountsScreen(), screenName: 'AccountsScreen'),
         '/transfer': (context) => const GestureCaptureWrapper(child: TransferScreen(), screenName: 'TransferScreen'),
         '/transactions': (context) => const GestureCaptureWrapper(child: TransactionsScreen(), screenName: 'TransactionsScreen'),
+        '/upi_payment': (context) => const UPIPaymentScreen(),
         '/debug': (context) => const DebugDataScreen(),
       },
       navigatorObservers: [ScreenFlowObserver()],

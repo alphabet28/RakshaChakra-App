@@ -9,6 +9,41 @@ class UPIPaymentScreen extends StatefulWidget {
 }
 
 class _UPIPaymentScreenState extends State<UPIPaymentScreen> {
+  final List<_UPIAction> _actions = [
+    _UPIAction(
+      label: 'Send Money to Contact / UPI ID',
+      icon: Icons.send_to_mobile,
+    ),
+    _UPIAction(
+      label: 'Send Money to Account Number',
+      icon: Icons.account_balance,
+    ),
+    _UPIAction(
+      label: 'Scan Any QR',
+      icon: Icons.qr_code_scanner,
+    ),
+    _UPIAction(
+      label: 'Receive Money',
+      icon: Icons.call_received,
+    ),
+    _UPIAction(
+      label: 'UPI Mandate',
+      icon: Icons.assignment,
+    ),
+    _UPIAction(
+      label: 'Pending Money Requests',
+      icon: Icons.pending_actions,
+    ),
+    _UPIAction(
+      label: 'Manage UPI ID / Number',
+      icon: Icons.manage_accounts,
+    ),
+    _UPIAction(
+      label: 'UPI Transaction History',
+      icon: Icons.history,
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +54,7 @@ class _UPIPaymentScreenState extends State<UPIPaymentScreen> {
           onPressed: () => Navigator.pushReplacementNamed(context, '/home'),
         ),
         title: const Text(
-          'UPI Payment',
+          'UPI Payments',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -39,7 +74,6 @@ class _UPIPaymentScreenState extends State<UPIPaymentScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Page heading
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -66,17 +100,17 @@ class _UPIPaymentScreenState extends State<UPIPaymentScreen> {
                     color: Colors.white,
                   ),
                   SizedBox(height: 10),
-                  Text(
-                    'UPI Payment',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                  // Text(
+                  //   'UPI Payments',
+                  //   style: TextStyle(
+                  //     fontSize: 24,
+                  //     fontWeight: FontWeight.bold,
+                  //     color: Colors.white,
+                  //   ),
+                  // ),
                   SizedBox(height: 5),
                   Text(
-                    'Quick and secure payments',
+                    'Choose an action below',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white70,
@@ -86,57 +120,14 @@ class _UPIPaymentScreenState extends State<UPIPaymentScreen> {
               ),
             ),
             const SizedBox(height: 24),
-
-            // Dummy content sections
-            _buildSection(
-              title: 'Recent Contacts',
-              icon: Icons.people,
-              items: [
-                'John Doe - john.doe@upi',
-                'Jane Smith - jane.smith@okicici',
-                'Mike Johnson - mike@paytm',
-                'Sarah Wilson - sarah@phonepe',
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            _buildSection(
-              title: 'Quick Actions',
-              icon: Icons.flash_on,
-              items: [
-                'Scan QR Code',
-                'Pay to Mobile Number',
-                'Pay to UPI ID',
-                'Request Money',
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            _buildSection(
-              title: 'Recent Transactions',
-              icon: Icons.history,
-              items: [
-                'Paid ₹500 to John Doe - 2 hours ago',
-                'Received ₹1000 from Jane Smith - Yesterday',
-                'Paid ₹250 to Mike Johnson - 2 days ago',
-                'Requested ₹750 from Sarah Wilson - 3 days ago',
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            _buildSection(
-              title: 'UPI Apps',
-              icon: Icons.apps,
-              items: [
-                'Google Pay',
-                'PhonePe',
-                'Paytm',
-                'BHIM',
-                'Amazon Pay',
-              ],
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 1,
+              children: _actions.map((action) => _buildActionBox(action)).toList(),
             ),
           ],
         ),
@@ -144,62 +135,69 @@ class _UPIPaymentScreenState extends State<UPIPaymentScreen> {
     );
   }
 
-  Widget _buildSection({
-    required String title,
-    required IconData icon,
-    required List<String> items,
-  }) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+  Widget _buildActionBox(_UPIAction action) {
+    return GestureDetector(
+      onTap: () {
+        switch (action.label) {
+          case 'Send Money to Contact / UPI ID':
+          case 'Send Money to Account Number':
+          case 'Scan Any QR':
+          case 'Receive Money':
+            Navigator.pushNamed(context, '/transfer');
+            break;
+          case 'UPI Mandate':
+            Navigator.pushNamed(context, '/upi_mandate');
+            break;
+          case 'Pending Money Requests':
+            Navigator.pushNamed(context, '/pending_requests');
+            break;
+          case 'Manage UPI ID / Number':
+            Navigator.pushNamed(context, '/manage_upi');
+            break;
+          case 'UPI Transaction History':
+            Navigator.pushNamed(context, '/transactions');
+            break;
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(color: const Color(0xFF667EEA).withOpacity(0.15)),
+        ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                Icon(icon, color: const Color(0xFF667EEA), size: 24),
-                const SizedBox(width: 10),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF667EEA),
-                  ),
-                ),
-              ],
-            ),
+            Icon(action.icon, size: 40, color: const Color(0xFF667EEA)),
             const SizedBox(height: 16),
-            ...items.map((item) => Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF667EEA),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      item,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-                ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(
+                action.label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
               ),
-            )).toList(),
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+class _UPIAction {
+  final String label;
+  final IconData icon;
+  const _UPIAction({required this.label, required this.icon});
 }
