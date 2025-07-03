@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:raksha/widgets/app_drawer.dart';
+import '../screens/add_payee_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -200,20 +201,30 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       delegate: SliverChildListDelegate(
         [
-          _buildActionItem(Icons.receipt_long, 'Bill Payments'),
-          _buildActionItem(Icons.swap_horiz, 'Transfer'),
-          _buildActionItem(Icons.person_add_alt_1_outlined, 'Add Payee'),
-          _buildActionItem(Icons.qr_code_scanner, 'Scan & Pay'),
-          _buildActionItem(Icons.battery_charging_full, 'Recharge'),
-          _buildActionItem(Icons.send_to_mobile, 'UPI Payment'),
+          _buildActionItem(Icons.receipt_long, 'Bill Payments', () {}),
+          _buildActionItem(Icons.swap_horiz, 'Transfer', () {
+            // Navigator.push(
+            //   context,
+            //   // MaterialPageRoute(builder: (context) => const MoneyTransferLandingScreen()),
+            // );
+          }),
+          _buildActionItem(Icons.person_add_alt_1_outlined, 'Add Payee', () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddPayeeScreen()),
+            );
+          }),
+          _buildActionItem(Icons.qr_code_scanner, 'Scan & Pay', () {}),
+          _buildActionItem(Icons.battery_charging_full, 'Recharge', () {}),
+          _buildActionItem(Icons.send_to_mobile, 'UPI Payment', () {}),
         ],
       ),
     );
   }
 
-  Widget _buildActionItem(IconData icon, String label) {
+  Widget _buildActionItem(IconData icon, String label, VoidCallback onTap) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       borderRadius: BorderRadius.circular(15),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

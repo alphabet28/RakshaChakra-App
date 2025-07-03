@@ -9,7 +9,7 @@ import 'widgets/gesture_capture_wrapper.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'widgets/screen_flow_observer.dart';
 import 'screens/debug_data_screen.dart';
-import 'package:raksha/screens/upi_payment_screen.dart';
+import 'package:raksha/screens/upi_payment/upi_payment_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
