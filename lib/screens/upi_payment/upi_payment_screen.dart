@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:raksha/widgets/app_drawer.dart';
 import 'package:raksha/widgets/upi_payment_widgets/upi_quick_actions.dart';
 import 'package:raksha/widgets/upi_payment_widgets/upi_recent_transactions.dart';
-import 'package:raksha/widgets/upi_payment_widgets/upi_offers_carousel.dart';
 import 'package:raksha/widgets/upi_payment_widgets/upi_linked_accounts.dart';
 
 class UPIPaymentScreen extends StatelessWidget {
@@ -37,7 +36,7 @@ class UPIPaymentScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Quick Actions Row
+            // Minimal Quick Actions Row
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: UPIQuickActions(),
@@ -47,9 +46,6 @@ class UPIPaymentScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: UPILinkedAccounts(),
             ),
-            const SizedBox(height: 12),
-            // Offers Carousel
-            UPIOffersCarousel(),
             const SizedBox(height: 12),
             // Recent Transactions
             Expanded(
