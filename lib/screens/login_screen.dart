@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import '../auth_service.dart';
-import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -124,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                _buildSignUpLink(),
+                // _buildSignUpLink(),
               ],
             ),
           ),
@@ -233,65 +231,72 @@ class _LoginScreenState extends State<LoginScreen> {
     });
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
+    
+    print('🚀 Login attempt:');
+    print('   Username: "$username"');
+    print('   Password: "$password"');
+    print('   Username length: ${username.length}');
+    print('   Password length: ${password.length}');
+    
     if (username.isEmpty || password.isEmpty) {
       setState(() {
         _error = 'Please enter both username and password.';
         _isLoading = false;
       });
-      return; // Ensure the function exits if fields are empty
+      return;
     }
     try {
-      final exists = await _authService.usernameExists(username);
-      if (!exists) {
+      final success = await _authService.loginWithFirestore(username, password);
+      if (success) {
+        print('✅ Login successful, navigating to home');
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        print('❌ Login failed: Invalid username or password');
         setState(() {
-          _error = 'User does not exist, kindly register.';
+          _error = 'Invalid username or password.';
           _isLoading = false;
         });
-        return;
       }
-      await _authService.signIn(username, password);
-      final box = Hive.box('behaviorData');
-      await box.put('loginTime', DateTime.now().toIso8601String());
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/home');
-    } on Exception catch (e) {
+    } catch (e) {
+      print('❌ Login error: $e');
       setState(() {
-        _error = 'Login failed: Incorrect password or user.';
+        _error = 'Login failed: $e';
         _isLoading = false;
       });
     }
   }
 
-  Widget _buildSignUpLink() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          "Don't have an account? ",
-          style: TextStyle(color: Colors.white.withOpacity(0.9)),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => SignupScreen()),
-            );
-          },
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            minimumSize: const Size(50, 30),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          child: const Text(
-            'Sign Up',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-} 
+  // Widget _buildSignUpLink() {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.center,
+  //     children: [
+  //       Text(
+  //         "Don't have an account? ",
+  //         style: TextStyle(color: Colors.white.withOpacity(0.9)),
+  //       ),
+  //       TextButton(
+  //         onPressed: () {
+  //           Navigator.push(
+  //             context,
+  //             // MaterialPageRoute(builder: (_) => SignupScreen()),
+  //           );
+  //         },
+  //         style: TextButton.styleFrom(
+  //           padding: const EdgeInsets.symmetric(horizontal: 4),
+  //           minimumSize: const Size(50, 30),
+  //           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  //         ),
+  //         child: const Text(
+  //           'Sign Up',
+  //           style: TextStyle(
+  //             color: Colors.white,
+  //             fontWeight: FontWeight.bold,
+  //             fontSize: 16,
+  //           ),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
+}

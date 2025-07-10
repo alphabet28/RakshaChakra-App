@@ -1,106 +1,121 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  String _usernameToEmail(String username) {
-    // Clean the username to make it email-safe
-    final cleanUsername = username
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9]'), '') // Remove special characters
-        .replaceAll(RegExp(r'\s+'), ''); // Remove spaces
-    
-    // Ensure we have a valid username
-    if (cleanUsername.isEmpty) {
-      throw Exception('Username cannot be empty after cleaning');
-    }
-    
-    // Use a real domain for testing
-    return '$cleanUsername@gmail.com';
-  }
-
-  // Test function to verify Firebase Auth is working
-  Future<void> testFirebaseConnection() async {
+  /// Registers a new user with plain text password (for simplicity)
+  Future<bool> registerUser(String username, String password) async {
     try {
-      print('Testing Firebase connection...');
-      print('Firebase Auth instance: $_auth');
-      print('Current user: ${_auth.currentUser}');
-      print('Firebase initialized successfully');
+      // Check if username already exists
+      final exists = await usernameExists(username);
+      if (exists) {
+        throw Exception('Username already exists');
+      }
+
+      // Store user with plain text password (simple approach)
+      await _firestore.collection('users').add({
+        'username': username,
+        'password': password,
+        'createdAt': FieldValue.serverTimestamp(),
+        'lastLogin': null,
+      });
+
+      return true;
     } catch (e) {
-      print('Firebase connection test failed: $e');
+      print('Firestore register error: $e');
       rethrow;
     }
   }
 
+  /// Authenticates user with simple password verification
+  Future<bool> loginWithFirestore(String username, String password) async {
+    try {
+      print('🔍 Attempting login for username: $username');
+      
+      // Find user by username
+      final query = await _firestore
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .get();
+
+      print('📊 Found ${query.docs.length} documents for username: $username');
+
+      if (query.docs.isEmpty) {
+        print('❌ No user found with username: $username');
+        return false;
+      }
+
+      final userDoc = query.docs.first;
+      final userData = userDoc.data();
+      
+      print('📝 User data keys: ${userData.keys.toList()}');
+      print('🔐 Stored password field: ${userData['password']}');
+      print('📝 Provided password: $password');
+      
+      // Get stored password
+      final storedPassword = userData['password'] as String?;
+      
+      if (storedPassword == null) {
+        print('❌ Invalid user data: missing password');
+        return false;
+      }
+
+      print('🔍 Comparing passwords:');
+      print('   Stored: "$storedPassword"');
+      print('   Provided: "$password"');
+      print('   Match: ${password == storedPassword}');
+
+      // Compare passwords
+      if (password == storedPassword) {
+        print('✅ Password match successful!');
+        // Update last login time
+        await userDoc.reference.update({
+          'lastLogin': FieldValue.serverTimestamp(),
+        });
+        print('📅 Last login time updated');
+        return true;
+      }
+
+      print('❌ Password does not match');
+      return false;
+    } catch (e) {
+      print('❌ Firestore login error: $e');
+      rethrow;
+    }
+  }
+
+  /// Checks if a username already exists in Firestore
   Future<bool> usernameExists(String username) async {
     try {
-      final email = _usernameToEmail(username);
-      print('Checking if username exists: $email');
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: 'dummyPassword123!',
-      );
-      return true;
-    } on FirebaseAuthException catch (e) {
-      print('Username check error: ${e.code} - ${e.message}');
-      if (e.code == 'user-not-found') {
-        return false;
-      } else if (e.code == 'wrong-password') {
-        return true;
-      } else {
-        rethrow;
-      }
-    }
-  }
-
-  Future<UserCredential> signUp(String username, String password) async {
-    try {
-      // Test Firebase connection first
-      await testFirebaseConnection();
-      
-      final email = _usernameToEmail(username);
-      print('Creating user with email: $email');
-      print('Password length: ${password.length}');
-      
-      // Create the user in Firebase Auth
-      final userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      
-      print('User created successfully: ${userCredential.user?.uid}');
-      return userCredential;
-    } on FirebaseAuthException catch (e) {
-      print('Firebase Auth Error: ${e.code} - ${e.message}');
-      print('Error details: ${e.toString()}');
-      rethrow;
+      final query = await _firestore
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .get();
+      return query.docs.isNotEmpty;
     } catch (e) {
-      print('General Error: $e');
-      print('Error type: ${e.runtimeType}');
+      print('Firestore username check error: $e');
       rethrow;
     }
   }
 
-  Future<UserCredential> signIn(String username, String password) async {
-    final email = _usernameToEmail(username);
-    return await _auth.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-  }
-
-  Future<void> signOut() async {
-    await _auth.signOut();
-  }
-
-  Stream<User?> get userChanges => _auth.authStateChanges();
-
-  String? validatePassword(String password) {
-    if (password.length < 10) return 'Password must be at least 10 characters.';
-    if (!RegExp(r'[A-Z]').hasMatch(password)) return 'Must have uppercase letter.';
-    if (!RegExp(r'[a-z]').hasMatch(password)) return 'Must have lowercase letter.';
-    if (!RegExp(r'\d').hasMatch(password)) return 'Must have a number.';
-    if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]').hasMatch(password)) return 'Must have a special character.';
-    return null;
+  /// Gets user data by username
+  Future<Map<String, dynamic>?> getUserData(String username) async {
+    try {
+      final query = await _firestore
+          .collection('users')
+          .where('username', isEqualTo: username)
+          .get();
+      
+      if (query.docs.isNotEmpty) {
+        final userData = query.docs.first.data();
+        // Remove sensitive data before returning
+        userData.remove('password');
+        return userData;
+      }
+      return null;
+    } catch (e) {
+      print('Firestore get user data error: $e');
+      rethrow;
+    }
   }
 }
