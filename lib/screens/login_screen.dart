@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../auth_service.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,6 +12,11 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isPasswordObscured = true;
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  String? _error;
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -83,12 +90,34 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: Colors.grey[600],
                         ),
                       ),
+                      if (_error != null)
+                        Container(
+                          margin: const EdgeInsets.only(top: 16, bottom: 8),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withOpacity(0.1),
+                            border: Border.all(color: Colors.red),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline, color: Colors.red),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _error!,
+                                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       const SizedBox(height: 32),
                       _buildUsernameField(),
                       const SizedBox(height: 16),
                       _buildPasswordField(),
                       const SizedBox(height: 24),
-                      _buildLoginButton(),
+                      _isLoading ? const Center(child: CircularProgressIndicator()) : _buildLoginButton(),
                       const SizedBox(height: 16),
                       _buildForgotPassword(),
                     ],
@@ -106,6 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildUsernameField() {
     return TextField(
+      controller: _usernameController,
       decoration: InputDecoration(
         labelText: 'Username',
         prefixIcon: const Icon(Icons.person_outline, color: Color(0xFF667EEA)),
@@ -129,6 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildPasswordField() {
     return TextField(
+      controller: _passwordController,
       obscureText: _isPasswordObscured,
       decoration: InputDecoration(
         labelText: 'Password',
@@ -174,11 +205,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildLoginButton() {
     return ElevatedButton(
-      onPressed: () async {
-        final box = Hive.box('behaviorData');
-        await box.put('loginTime', DateTime.now().toIso8601String());
-        Navigator.pushReplacementNamed(context, '/home');
-      },
+      onPressed: _login,
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFF667EEA),
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -199,6 +226,42 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  Future<void> _login() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text;
+    if (username.isEmpty || password.isEmpty) {
+      setState(() {
+        _error = 'Please enter both username and password.';
+        _isLoading = false;
+      });
+      return; // Ensure the function exits if fields are empty
+    }
+    try {
+      final exists = await _authService.usernameExists(username);
+      if (!exists) {
+        setState(() {
+          _error = 'User does not exist, kindly register.';
+          _isLoading = false;
+        });
+        return;
+      }
+      await _authService.signIn(username, password);
+      final box = Hive.box('behaviorData');
+      await box.put('loginTime', DateTime.now().toIso8601String());
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
+    } on Exception catch (e) {
+      setState(() {
+        _error = 'Login failed: Incorrect password or user.';
+        _isLoading = false;
+      });
+    }
+  }
+
   Widget _buildSignUpLink() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -208,7 +271,12 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(color: Colors.white.withOpacity(0.9)),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => SignupScreen()),
+            );
+          },
           style: TextButton.styleFrom(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             minimumSize: const Size(50, 30),
