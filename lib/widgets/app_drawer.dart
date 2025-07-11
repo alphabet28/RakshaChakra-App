@@ -1,7 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/user_session.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends StatefulWidget {
   const AppDrawer({super.key});
+
+  @override
+  State<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends State<AppDrawer> {
+  String _username = 'Loading...';
+  String _lastLogin = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() {
+    final userData = UserSession.getCurrentUserData();
+    final username = UserSession.getCurrentUsername();
+    
+    if (username != null && userData != null) {
+      setState(() {
+        _username = username;
+        if (userData['lastLogin'] != null) {
+          final lastLogin = userData['lastLogin'] as Timestamp;
+          _lastLogin = 'Last Login: ${lastLogin.toDate().toString().substring(0, 19)}';
+        } else {
+          _lastLogin = 'First time login';
+        }
+      });
+    } else {
+      setState(() {
+        _username = 'User';
+        _lastLogin = 'Last Login: Unknown';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +103,10 @@ class AppDrawer extends StatelessWidget {
             _buildDrawerItem(
               icon: Icons.logout,
               text: 'Logout',
-              onTap: () => Navigator.pushReplacementNamed(context, '/login'),
+              onTap: () {
+                UserSession.clearSession();
+                Navigator.pushReplacementNamed(context, '/login');
+              },
             ),
             const SizedBox(height: 40),
              Align(
@@ -96,11 +137,11 @@ class AppDrawer extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 30,
             backgroundColor: Colors.white,
             child: Icon(
@@ -109,18 +150,18 @@ class AppDrawer extends StatelessWidget {
               color: Color(0xFF667EEA),
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
-            'Atharv Bhavsar',
-            style: TextStyle(
+            _username,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           Text(
-            'Last Login: Jul 03, 01:18 AM',
-            style: TextStyle(
+            _lastLogin,
+            style: const TextStyle(
               color: Colors.white70,
               fontSize: 12,
             ),

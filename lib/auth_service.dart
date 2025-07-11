@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
+import 'utils/user_session.dart';
 
 class AuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -56,6 +57,10 @@ class AuthService {
         await userDoc.reference.update({
           'lastLogin': FieldValue.serverTimestamp(),
         });
+        
+        // Set the current user session
+        UserSession.setCurrentUser(username, userData);
+        
         return true;
       }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:raksha/widgets/app_drawer.dart';
 import '../screens/add_payee_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../utils/user_session.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -73,8 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.logout),
-                onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
+                onPressed: () {
+                  UserSession.clearSession();
+                  Navigator.pushReplacementNamed(context, '/login');
                 },
               ),
             ],

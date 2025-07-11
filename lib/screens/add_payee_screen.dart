@@ -76,7 +76,7 @@ class _AddPayeeScreenState extends State<AddPayeeScreen> {
                       selectedColor: Colors.white,
                       fillColor: const Color(0xFF667EEA),
                       color: Colors.black87,
-                      constraints: const BoxConstraints(minHeight: 48, minWidth: 110),
+                      constraints: const BoxConstraints(minHeight: 48, minWidth: 80),
                       children: const [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -349,7 +349,7 @@ class _AddPayeeScreenState extends State<AddPayeeScreen> {
           selectedColor: Colors.white,
           fillColor: const Color(0xFF0288D1),
           color: Colors.black87,
-          constraints: const BoxConstraints(minHeight: 40, minWidth: 100),
+          constraints: const BoxConstraints(minHeight: 40, minWidth: 80),
           children: const [
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
