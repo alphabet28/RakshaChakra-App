@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/upi_payment/upi_payment_screen.dart';
+import 'screens/upi_payment/upi_settings_screen.dart';
 import 'utils/user_session.dart';
 
 void main() async {
@@ -25,6 +27,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => HomeScreen(),
         '/login': (context) => LoginScreen(),
+        '/upi_payment': (context) => const UPIPaymentScreen(),
+        '/upi_settings': (context) => const UPISettingsScreen(),
       },
       home: LoginScreen(),
     );
